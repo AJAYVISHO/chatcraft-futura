@@ -3,6 +3,8 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Send, Bot, User } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
@@ -20,6 +22,8 @@ interface ChatInterfaceProps {
   userBubbleColor: string;
   aiBubbleColor: string;
   isDarkMode?: boolean;
+  chatbotConfig?: any;
+  userApiKey?: string;
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
@@ -30,7 +34,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   enableTyping,
   userBubbleColor,
   aiBubbleColor,
-  isDarkMode = false
+  isDarkMode = false,
+  chatbotConfig,
+  userApiKey
 }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -43,6 +49,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,34 +70,78 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
 
     if (enableTyping) {
       setIsTyping(true);
     }
 
-    // Simulate bot response delay
-    setTimeout(() => {
-      const botResponses = [
-        "Thank you for your message! I'm here to help you with any questions about " + businessName + ".",
-        "I understand your concern. Let me help you find the information you need.",
-        "That's a great question! Based on our knowledge base, here's what I can tell you...",
-        "I'm processing your request. Our team at " + businessName + " is committed to providing excellent support.",
-        "I'd be happy to assist you with that. Is there anything specific you'd like to know more about?"
-      ];
+    try {
+      // Prepare messages for API call
+      const chatMessages = messages.map(msg => ({
+        role: msg.isUser ? 'user' : 'assistant',
+        content: msg.content
+      }));
+      
+      // Add current user message
+      chatMessages.push({
+        role: 'user',
+        content: currentInput
+      });
 
-      const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
+      // Call Supabase edge function
+      const { data, error } = await supabase.functions.invoke('chat-completion', {
+        body: {
+          messages: chatMessages,
+          chatbotConfig: chatbotConfig || {
+            name: botName,
+            businessName,
+            industry: 'General',
+            location: 'Not specified',
+            contactPhone: 'Not provided',
+            ragContent: 'No specific knowledge base provided.'
+          },
+          userApiKey
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: randomResponse,
+        content: data.choices?.[0]?.message?.content || "I apologize, but I couldn't generate a response. Please try again.",
         isUser: false,
         timestamp: new Date()
       };
 
-      setIsTyping(false);
       setMessages(prev => [...prev, botMessage]);
-    }, 1500);
+    } catch (error: any) {
+      console.error('Chat error:', error);
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: `Sorry, I encountered an error: ${error.message}. Please check your API configuration and try again.`,
+        isUser: false,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, errorMessage]);
+      
+      toast({
+        title: "Chat Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

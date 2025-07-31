@@ -15,9 +15,11 @@ import {
   Settings,
   Users,
   MessageCircle,
-  TrendingUp
+  TrendingUp,
+  LogOut
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ChatbotItem {
   id: string;
@@ -74,6 +76,7 @@ const mockChatbots: ChatbotItem[] = [
 export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [chatbots] = useState<ChatbotItem[]>(mockChatbots);
+  const { signOut } = useAuth();
 
   const filteredChatbots = chatbots.filter(bot =>
     bot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -107,10 +110,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew }) => {
           </p>
         </div>
         
-        <Button onClick={onCreateNew} className="gradient-button">
-          <Plus className="w-4 h-4 mr-2" />
-          Create New Chatbot
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={signOut} className="neu-button">
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+          <Button onClick={onCreateNew} className="gradient-button">
+            <Plus className="w-4 h-4 mr-2" />
+            Create New Chatbot
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}

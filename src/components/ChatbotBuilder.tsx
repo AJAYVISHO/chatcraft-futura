@@ -38,6 +38,9 @@ interface ChatbotData {
   embedWidth: string;
   embedHeight: string;
   embedTheme: string;
+  
+  // API Configuration
+  openRouterApiKey?: string;
 }
 
 const initialData: ChatbotData = {
@@ -58,7 +61,8 @@ const initialData: ChatbotData = {
   aiBubbleColor: '#f3f4f6',
   embedWidth: '400',
   embedHeight: '600',
-  embedTheme: 'light'
+  embedTheme: 'light',
+  openRouterApiKey: ''
 };
 
 const steps = [

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
-import { Copy, Code, Eye, Smartphone, Monitor, Tablet } from 'lucide-react';
+import { Copy, Code, Eye, Smartphone, Monitor, Tablet, Key } from 'lucide-react';
 import { ChatInterface } from '../ChatInterface';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,12 +23,14 @@ interface PreviewEmbedStepProps {
     embedWidth: string;
     embedHeight: string;
     embedTheme: string;
+    openRouterApiKey?: string;
   };
   updateData: (updates: any) => void;
 }
 
 export const PreviewEmbedStep: React.FC<PreviewEmbedStepProps> = ({ data, updateData }) => {
   const [previewDevice, setPreviewDevice] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
+  const [showApiKey, setShowApiKey] = useState(false);
   const { toast } = useToast();
 
   const generateEmbedCode = () => {
@@ -177,8 +179,57 @@ export default function HomePage() {
                 userBubbleColor={data.userBubbleColor}
                 aiBubbleColor={data.aiBubbleColor}
                 isDarkMode={data.isDarkMode}
+                userApiKey={data.openRouterApiKey}
               />
             </div>
+          </Card>
+
+          {/* API Key Configuration */}
+          <Card className="glass-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-medium text-foreground flex items-center gap-2">
+                <Key className="w-4 h-4 text-primary" />
+                OpenRouter API Configuration
+              </h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="neu-button"
+              >
+                {showApiKey ? 'Hide' : 'Show'} API Key
+              </Button>
+            </div>
+            
+            {showApiKey && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="apiKey" className="text-sm font-medium">
+                    OpenRouter API Key (Optional - for live testing)
+                  </Label>
+                  <Input
+                    id="apiKey"
+                    type="password"
+                    placeholder="sk-or-..."
+                    value={data.openRouterApiKey || ''}
+                    onChange={(e) => updateData({ openRouterApiKey: e.target.value })}
+                    className="neu-button border-0 bg-card/50 backdrop-blur-sm focus:bg-card focus:ring-2 focus:ring-primary/20"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Get your API key from{' '}
+                    <a 
+                      href="https://openrouter.ai/keys" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      OpenRouter
+                    </a>
+                    . This enables live AI responses for testing.
+                  </p>
+                </div>
+              </div>
+            )}
           </Card>
 
           {/* Embed Settings */}
