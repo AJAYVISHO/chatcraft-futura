@@ -57,7 +57,7 @@ Please respond helpfully and professionally, staying in character as this busine
         'X-Title': 'Chatbot Builder'
       },
       body: JSON.stringify({
-        model: 'microsoft/deepseek-chat',
+        model: 'tngtech/deepseek-r1t2-chimera:free',
         messages: openRouterMessages,
         temperature: 0.7,
         max_tokens: 1000,
