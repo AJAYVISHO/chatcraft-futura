@@ -100,6 +100,65 @@ export default function HomePage() {
 }`;
   };
 
+  const generateVueCode = () => {
+    const baseUrl = window.location.origin;
+    const chatbotUrl = `${baseUrl}/embed/${data.chatbotName ? encodeURIComponent(data.chatbotName.replace(/\s+/g, '-').toLowerCase()) : 'chatbot'}`;
+    
+    return `<template>
+  <div class="chatbot-container">
+    <iframe
+      :src="chatbotUrl"
+      :width="width"
+      :height="height"
+      frameborder="0"
+      :style="iframeStyle"
+      title="AI Chatbot"
+    />
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'AIChatbot',
+  data() {
+    return {
+      chatbotUrl: '${chatbotUrl}',
+      width: '${data.embedWidth}',
+      height: '${data.embedHeight}'
+    }
+  }
+}
+</script>`;
+  };
+
+  const generateAngularCode = () => {
+    const baseUrl = window.location.origin;
+    const chatbotUrl = `${baseUrl}/embed/${data.chatbotName ? encodeURIComponent(data.chatbotName.replace(/\s+/g, '-').toLowerCase()) : 'chatbot'}`;
+    
+    return `// chatbot.component.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-chatbot',
+  template: \`
+    <div class="chatbot-container">
+      <iframe
+        [src]="chatbotUrl"
+        [width]="width"
+        [height]="height"
+        frameborder="0"
+        title="AI Chatbot">
+      </iframe>
+    </div>
+  \`
+})
+export class ChatbotComponent {
+  chatbotUrl = '${chatbotUrl}';
+  width = '${data.embedWidth}';
+  height = '${data.embedHeight}';
+}`;
+  };
+
   const copyToClipboard = (text: string, type: string) => {
     navigator.clipboard.writeText(text);
     toast({

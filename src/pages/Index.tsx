@@ -9,6 +9,7 @@ type ViewMode = 'dashboard' | 'builder';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
+  const [editingChatbotId, setEditingChatbotId] = useState<string | undefined>();
   const { user, loading } = useAuth();
 
   useEffect(() => {
@@ -18,7 +19,18 @@ const Index = () => {
   }, [user, loading]);
 
   const handleCreateNew = () => {
+    setEditingChatbotId(undefined);
     setCurrentView('builder');
+  };
+
+  const handleEditChatbot = (chatbotId: string) => {
+    setEditingChatbotId(chatbotId);
+    setCurrentView('builder');
+  };
+
+  const handleSaved = () => {
+    setCurrentView('dashboard');
+    setEditingChatbotId(undefined);
   };
 
   if (loading) {
@@ -38,10 +50,10 @@ const Index = () => {
     <div className="min-h-screen animated-gradient">
       {currentView === 'dashboard' ? (
         <div className="container mx-auto py-8 px-4">
-          <Dashboard onCreateNew={handleCreateNew} />
+          <Dashboard onCreateNew={handleCreateNew} onEditChatbot={handleEditChatbot} />
         </div>
       ) : (
-        <ChatbotBuilder />
+        <ChatbotBuilder editingChatbotId={editingChatbotId} onSaved={handleSaved} />
       )}
     </div>
   );

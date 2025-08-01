@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -8,40 +8,7 @@ import { IndustryContactStep } from './builder-steps/IndustryContactStep';
 import { KnowledgebaseStep } from './builder-steps/KnowledgebaseStep';
 import { AppearanceStep } from './builder-steps/AppearanceStep';
 import { PreviewEmbedStep } from './builder-steps/PreviewEmbedStep';
-
-interface ChatbotData {
-  // General Info
-  chatbotName: string;
-  businessName: string;
-  
-  // Industry & Contact
-  industry: string;
-  customIndustry?: string;
-  businessLocation: string;
-  supportPhone: string;
-  supportEmail: string;
-  
-  // Knowledgebase
-  uploadedFiles: File[];
-  manualContent: string;
-  websiteLinks: string[];
-  
-  // Appearance
-  avatar: string;
-  isDarkMode: boolean;
-  greeting: string;
-  enableTyping: boolean;
-  userBubbleColor: string;
-  aiBubbleColor: string;
-  
-  // Embed settings
-  embedWidth: string;
-  embedHeight: string;
-  embedTheme: string;
-  
-  // API Configuration
-  openRouterApiKey?: string;
-}
+import { useChatbots, type ChatbotData } from '@/hooks/useChatbots';
 
 const initialData: ChatbotData = {
   chatbotName: '',
@@ -73,9 +40,28 @@ const steps = [
   { id: 5, title: 'Preview & Embed', description: 'Generate embed code' }
 ];
 
-export const ChatbotBuilder: React.FC = () => {
+interface ChatbotBuilderProps {
+  editingChatbotId?: string;
+  onSaved?: () => void;
+}
+
+export const ChatbotBuilder: React.FC<ChatbotBuilderProps> = ({ 
+  editingChatbotId, 
+  onSaved 
+}) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [chatbotData, setChatbotData] = useState<ChatbotData>(initialData);
+  const { chatbots, saveChatbot } = useChatbots();
+
+  // Load existing chatbot data if editing
+  useEffect(() => {
+    if (editingChatbotId && chatbots.length > 0) {
+      const existingChatbot = chatbots.find(bot => bot.id === editingChatbotId);
+      if (existingChatbot) {
+        setChatbotData(existingChatbot);
+      }
+    }
+  }, [editingChatbotId, chatbots]);
 
   const updateData = (updates: Partial<ChatbotData>) => {
     setChatbotData(prev => ({ ...prev, ...updates }));
@@ -213,9 +199,17 @@ export const ChatbotBuilder: React.FC = () => {
               <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
           ) : (
-            <Button className="gradient-button" onClick={() => alert('Chatbot created successfully!')}>
+            <Button 
+              className="gradient-button" 
+              onClick={async () => {
+                const result = await saveChatbot(chatbotData);
+                if (result && onSaved) {
+                  onSaved();
+                }
+              }}
+            >
               <Sparkles className="w-4 h-4 mr-2" />
-              Create Chatbot
+              {editingChatbotId ? 'Update Chatbot' : 'Create Chatbot'}
             </Button>
           )}
         </div>
