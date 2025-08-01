@@ -10,7 +10,7 @@ import { Eye, EyeOff, Bot } from 'lucide-react';
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
+  
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -27,37 +27,38 @@ const Auth = () => {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    if (!email || !password) return;
 
+    setLoading(true);
+    
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
+      const result = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      const { error } = result;
+      
+      if (error) {
+        console.error('Auth error:', error);
         toast({
-          title: "Welcome back!",
-          description: "You've successfully signed in.",
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
         });
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`
-          }
-        });
-        if (error) throw error;
         toast({
-          title: "Account created!",
-          description: "Please check your email to verify your account.",
+          title: "Success",
+          description: "Signed in successfully!",
         });
+        
+        window.location.href = '/';
       }
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Auth error:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -74,13 +75,10 @@ const Auth = () => {
           </div>
           <div>
             <CardTitle className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              {isLogin ? 'Welcome Back' : 'Create Account'}
+              Welcome Back
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              {isLogin 
-                ? 'Sign in to your chatbot builder account' 
-                : 'Start building amazing chatbots today'
-              }
+              Sign in to your chatbot builder account
             </CardDescription>
           </div>
         </CardHeader>
@@ -130,22 +128,9 @@ const Auth = () => {
               className="w-full gradient-button" 
               disabled={loading}
             >
-              {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
+              {loading ? 'Please wait...' : 'Sign In'}
             </Button>
           </form>
-          
-          <div className="mt-6 text-center">
-            <Button
-              variant="ghost"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-primary"
-            >
-              {isLogin 
-                ? "Don't have an account? Sign up" 
-                : "Already have an account? Sign in"
-              }
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>
