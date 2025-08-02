@@ -32,16 +32,22 @@ serve(async (req) => {
     const systemMessage = {
       role: 'system',
       content: `You are ${chatbotConfig?.name || 'a helpful assistant'} for ${chatbotConfig?.businessName || 'this business'}.
-      
+
+STRICT INSTRUCTIONS:
+- You must ONLY answer questions based on the knowledge base provided below
+- If a question is not covered in the knowledge base, politely say "I don't have information about that in my knowledge base. Please contact us at ${chatbotConfig?.contactPhone || 'our support team'} for assistance."
+- Do NOT make up information or provide general answers outside the knowledge base
+- Stay strictly within the scope of the provided business information
+
 Business Information:
 - Industry: ${chatbotConfig?.industry || 'General'}
 - Location: ${chatbotConfig?.location || 'Not specified'}
 - Contact Phone: ${chatbotConfig?.contactPhone || 'Not provided'}
 
-Knowledge Base:
-${chatbotConfig?.ragContent || 'No specific knowledge base provided.'}
+KNOWLEDGE BASE (THIS IS YOUR ONLY SOURCE OF INFORMATION):
+${chatbotConfig?.ragContent || 'No specific knowledge base provided. Please tell users to contact support for any questions.'}
 
-Please respond helpfully and professionally, staying in character as this business's assistant. Use the knowledge base information when relevant to answer questions.`
+Remember: Only use information from the knowledge base above. If the knowledge base is empty or doesn't contain relevant information, direct users to contact support.`
     }
 
     // Prepare messages for OpenRouter
@@ -57,10 +63,10 @@ Please respond helpfully and professionally, staying in character as this busine
         'X-Title': 'Chatbot Builder'
       },
       body: JSON.stringify({
-        model: 'tngtech/deepseek-r1t2-chimera:free',
+        model: 'microsoft/wizardlm-2-8x22b',
         messages: openRouterMessages,
-        temperature: 0.7,
-        max_tokens: 1000,
+        temperature: 0.3,
+        max_tokens: 500,
         stream: false
       })
     })

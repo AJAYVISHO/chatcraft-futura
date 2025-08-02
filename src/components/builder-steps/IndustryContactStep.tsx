@@ -25,7 +25,7 @@ const industries = [
   'Restaurant',
   'Consulting',
   'Manufacturing',
-  'Other'
+  'Others'
 ];
 
 export const IndustryContactStep: React.FC<IndustryContactStepProps> = ({ data, updateData }) => {
@@ -60,7 +60,7 @@ export const IndustryContactStep: React.FC<IndustryContactStepProps> = ({ data, 
           </Select>
         </div>
 
-        {data.industry === 'Other' && (
+        {data.industry === 'Others' && (
           <div className="space-y-2">
             <Label htmlFor="customIndustry" className="text-sm font-medium">
               Specify Industry
