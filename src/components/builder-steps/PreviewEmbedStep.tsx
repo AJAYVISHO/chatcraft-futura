@@ -14,6 +14,10 @@ interface PreviewEmbedStepProps {
   data: {
     chatbotName: string;
     businessName: string;
+    industry: string;
+    businessLocation: string;
+    supportPhone: string;
+    manualContent: string;
     avatar: string;
     greeting: string;
     enableTyping: boolean;
@@ -238,58 +242,19 @@ export class ChatbotComponent {
                 userBubbleColor={data.userBubbleColor}
                 aiBubbleColor={data.aiBubbleColor}
                 isDarkMode={data.isDarkMode}
+                chatbotConfig={{
+                  name: data.chatbotName,
+                  businessName: data.businessName,
+                  industry: data.industry || 'General',
+                  location: data.businessLocation || 'Not specified',
+                  contactPhone: data.supportPhone || 'Not provided',
+                  ragContent: data.manualContent || 'No specific knowledge base provided.'
+                }}
                 userApiKey={data.openRouterApiKey}
               />
             </div>
           </Card>
 
-          {/* API Key Configuration */}
-          <Card className="glass-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium text-foreground flex items-center gap-2">
-                <Key className="w-4 h-4 text-primary" />
-                OpenRouter API Configuration
-              </h3>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowApiKey(!showApiKey)}
-                className="neu-button"
-              >
-                {showApiKey ? 'Hide' : 'Show'} API Key
-              </Button>
-            </div>
-            
-            {showApiKey && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="apiKey" className="text-sm font-medium">
-                    OpenRouter API Key (Optional - for live testing)
-                  </Label>
-                  <Input
-                    id="apiKey"
-                    type="password"
-                    placeholder="sk-or-..."
-                    value={data.openRouterApiKey || ''}
-                    onChange={(e) => updateData({ openRouterApiKey: e.target.value })}
-                    className="neu-button border-0 bg-card/50 backdrop-blur-sm focus:bg-card focus:ring-2 focus:ring-primary/20"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Get your API key from{' '}
-                    <a 
-                      href="https://openrouter.ai/keys" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      OpenRouter
-                    </a>
-                    . This enables live AI responses for testing.
-                  </p>
-                </div>
-              </div>
-            )}
-          </Card>
 
           {/* Embed Settings */}
           <Card className="glass-card p-6">

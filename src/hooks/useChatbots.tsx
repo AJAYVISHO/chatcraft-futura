@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = "https://oyamwgtjdvqgzljzxuua.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95YW13Z3RqZHZxZ3psanp4dXVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MjA2MjAsImV4cCI6MjA2ODk5NjYyMH0.cV9zP1ITlJRkFVywzMD3We08VUfclLMicwXsUk9HXCw";
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export interface ChatbotData {
   id?: string;
@@ -89,7 +93,7 @@ export const useChatbots = () => {
     }
   };
 
-  const saveChatbot = async (chatbotData: ChatbotData) => {
+  const saveChatbot = async (chatbotData: ChatbotData): Promise<any> => {
     if (!user) {
       toast({
         title: "Error",
@@ -124,26 +128,23 @@ export const useChatbots = () => {
         }
       };
 
-      let result;
       if (chatbotData.id) {
         // Update existing chatbot
-        result = await supabase
+        const { error } = await supabase
           .from('chatbots')
           .update(dbData)
           .eq('id', chatbotData.id)
-          .eq('user_id', user.id)
-          .select()
-          .single();
+          .eq('user_id', user.id);
+        
+        if (error) throw error;
       } else {
         // Create new chatbot
-        result = await supabase
+        const { error } = await supabase
           .from('chatbots')
-          .insert(dbData)
-          .select()
-          .single();
+          .insert(dbData);
+        
+        if (error) throw error;
       }
-
-      if (result.error) throw result.error;
 
       toast({
         title: "Success",
@@ -151,7 +152,7 @@ export const useChatbots = () => {
       });
 
       fetchChatbots();
-      return result.data;
+      return true;
     } catch (error) {
       console.error('Error saving chatbot:', error);
       toast({
@@ -197,7 +198,6 @@ export const useChatbots = () => {
     if (user?.id) {
       fetchChatbots();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   return {
