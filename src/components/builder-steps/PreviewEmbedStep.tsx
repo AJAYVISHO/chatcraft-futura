@@ -38,15 +38,32 @@ export const PreviewEmbedStep: React.FC<PreviewEmbedStepProps> = ({ data, update
   const { toast } = useToast();
 
   const generateEmbedCode = () => {
-    const iframeCode = `<iframe
-  src="https://your-chatbot-domain.com/chat/${data.chatbotName.toLowerCase().replace(/\s+/g, '-')}"
-  width="${data.embedWidth}"
-  height="${data.embedHeight}"
-  frameborder="0"
-  style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+    const baseUrl = window.location.origin;
+    const scriptCode = `<!-- Floating Chatbot Widget -->
+<script>
+  (function() {
+    var div = document.createElement('div');
+    div.id = 'chatbot-widget';
+    document.body.appendChild(div);
+    
+    var iframe = document.createElement('iframe');
+    iframe.src = '${baseUrl}/embed/CHATBOT_ID_HERE';
+    iframe.style.cssText = 'position: fixed; bottom: 0; right: 0; width: 100vw; height: 100vh; border: none; pointer-events: none; z-index: 9999;';
+    iframe.onload = function() {
+      iframe.style.pointerEvents = 'auto';
+    };
+    
+    div.appendChild(iframe);
+  })();
+</script>
+
+<!-- Alternative: Simple iframe embed -->
+<iframe
+  src="${baseUrl}/embed/CHATBOT_ID_HERE"
+  style="position: fixed; bottom: 20px; right: 20px; width: 350px; height: 500px; border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 9999;"
   title="${data.chatbotName} - ${data.businessName}"
 ></iframe>`;
-    return iframeCode;
+    return scriptCode;
   };
 
   const generateReactCode = () => {

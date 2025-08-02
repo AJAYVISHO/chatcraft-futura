@@ -29,7 +29,8 @@ const initialData: ChatbotData = {
   embedWidth: '400',
   embedHeight: '600',
   embedTheme: 'light',
-  openRouterApiKey: ''
+  openRouterApiKey: '',
+  autoGreeting: false
 };
 
 const steps = [

@@ -29,6 +29,7 @@ export interface ChatbotData {
   embedHeight: string;
   embedTheme: string;
   openRouterApiKey?: string;
+  autoGreeting: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -75,6 +76,7 @@ export const useChatbots = () => {
           embedHeight: config.embedHeight || '600',
           embedTheme: config.embedTheme || 'light',
           openRouterApiKey: config.openRouterApiKey || '',
+          autoGreeting: config.autoGreeting || false,
           created_at: chatbot.created_at,
           updated_at: chatbot.updated_at
         };
@@ -124,7 +126,8 @@ export const useChatbots = () => {
           embedWidth: chatbotData.embedWidth,
           embedHeight: chatbotData.embedHeight,
           embedTheme: chatbotData.embedTheme,
-          openRouterApiKey: chatbotData.openRouterApiKey
+          openRouterApiKey: chatbotData.openRouterApiKey,
+          autoGreeting: chatbotData.autoGreeting
         }
       };
 

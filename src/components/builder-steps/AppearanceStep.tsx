@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { Palette, Moon, Sun, MessageCircle, Upload, Sparkles } from 'lucide-react';
+import { Palette, Moon, Sun, MessageCircle, Upload, Sparkles, Clock } from 'lucide-react';
 
 interface AppearanceStepProps {
   data: {
@@ -13,6 +13,7 @@ interface AppearanceStepProps {
     enableTyping: boolean;
     userBubbleColor: string;
     aiBubbleColor: string;
+    autoGreeting: boolean;
   };
   updateData: (updates: any) => void;
 }
@@ -131,6 +132,21 @@ export const AppearanceStep: React.FC<AppearanceStepProps> = ({ data, updateData
             <Switch
               checked={data.enableTyping}
               onCheckedChange={(checked) => updateData({ enableTyping: checked })}
+            />
+          </div>
+
+          {/* Auto Greeting */}
+          <div className="flex items-center justify-between p-4 bg-card/50 rounded-xl">
+            <div className="flex items-center gap-3">
+              <Clock className="w-5 h-5 text-primary" />
+              <div>
+                <Label className="font-medium">Auto Greeting</Label>
+                <p className="text-sm text-muted-foreground">Show greeting automatically when widget opens</p>
+              </div>
+            </div>
+            <Switch
+              checked={data.autoGreeting}
+              onCheckedChange={(checked) => updateData({ autoGreeting: checked })}
             />
           </div>
         </div>
