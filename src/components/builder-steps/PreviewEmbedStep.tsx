@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Copy, Code, Eye, Smartphone, Monitor, Tablet, Key } from 'lucide-react';
-import { ChatInterface } from '../ChatInterface';
+import { EmbeddableChat } from '../EmbeddableChat';
 import { useToast } from '@/hooks/use-toast';
 
 interface PreviewEmbedStepProps {
@@ -28,6 +28,17 @@ interface PreviewEmbedStepProps {
     embedHeight: string;
     embedTheme: string;
     openRouterApiKey?: string;
+    autoGreeting: boolean;
+    floatingPosition: 'bottom-right' | 'bottom-left';
+    buttonShape: 'circle' | 'square' | 'rounded';
+    buttonSize: 'small' | 'medium' | 'large';
+    widgetBorder: boolean;
+    widgetShadow: 'none' | 'small' | 'medium' | 'large';
+    headerColor: string;
+    headerTextColor: string;
+    emailNotifications: boolean;
+    notificationEmail: string;
+    id?: string;
   };
   updateData: (updates: any) => void;
 }
@@ -39,28 +50,71 @@ export const PreviewEmbedStep: React.FC<PreviewEmbedStepProps> = ({ data, update
 
   const generateEmbedCode = () => {
     const baseUrl = window.location.origin;
-    const scriptCode = `<!-- Floating Chatbot Widget -->
+    const chatbotParams = new URLSearchParams({
+      botName: data.chatbotName,
+      businessName: data.businessName,
+      avatar: data.avatar,
+      greeting: data.greeting,
+      userBubbleColor: data.userBubbleColor,
+      aiBubbleColor: data.aiBubbleColor,
+      theme: data.isDarkMode ? 'dark' : 'light',
+      autoGreeting: data.autoGreeting.toString(),
+      floatingPosition: data.floatingPosition,
+      buttonShape: data.buttonShape,
+      buttonSize: data.buttonSize,
+      widgetBorder: data.widgetBorder.toString(),
+      widgetShadow: data.widgetShadow,
+      headerColor: data.headerColor,
+      headerTextColor: data.headerTextColor,
+      emailNotifications: data.emailNotifications.toString(),
+      notificationEmail: data.notificationEmail,
+    });
+
+    const scriptCode = `<!-- Advanced Floating Chatbot Widget -->
 <script>
   (function() {
-    var div = document.createElement('div');
-    div.id = 'chatbot-widget';
-    document.body.appendChild(div);
+    // Create chatbot container
+    var container = document.createElement('div');
+    container.id = 'chatbot-widget-container';
+    container.style.cssText = 'position: fixed; ${data.floatingPosition === 'bottom-left' ? 'bottom: 20px; left: 20px;' : 'bottom: 20px; right: 20px;'} z-index: 9999; font-family: system-ui, -apple-system, sans-serif;';
+    document.body.appendChild(container);
     
-    var iframe = document.createElement('iframe');
-    iframe.src = '${baseUrl}/embed/CHATBOT_ID_HERE';
-    iframe.style.cssText = 'position: fixed; bottom: 0; right: 0; width: 100vw; height: 100vh; border: none; pointer-events: none; z-index: 9999;';
-    iframe.onload = function() {
-      iframe.style.pointerEvents = 'auto';
+    // Chatbot configuration
+    var config = {
+      chatbotId: 'REPLACE_WITH_YOUR_CHATBOT_ID',
+      botName: '${data.chatbotName}',
+      businessName: '${data.businessName}',
+      avatar: '${data.avatar}',
+      greeting: '${data.greeting}',
+      userBubbleColor: '${data.userBubbleColor}',
+      aiBubbleColor: '${data.aiBubbleColor}',
+      theme: '${data.isDarkMode ? 'dark' : 'light'}',
+      autoGreeting: ${data.autoGreeting},
+      floatingPosition: '${data.floatingPosition}',
+      buttonShape: '${data.buttonShape}',
+      buttonSize: '${data.buttonSize}',
+      widgetBorder: ${data.widgetBorder},
+      widgetShadow: '${data.widgetShadow}',
+      headerColor: '${data.headerColor}',
+      headerTextColor: '${data.headerTextColor}',
+      emailNotifications: ${data.emailNotifications},
+      notificationEmail: '${data.notificationEmail}'
     };
     
-    div.appendChild(iframe);
+    // Create iframe
+    var iframe = document.createElement('iframe');
+    iframe.src = '${baseUrl}/chat-embed?chatbotId=' + config.chatbotId + '&' + Object.keys(config).map(key => key + '=' + encodeURIComponent(config[key])).join('&');
+    iframe.style.cssText = 'width: 100vw; height: 100vh; border: none; background: transparent;';
+    iframe.title = config.botName + ' - ' + config.businessName;
+    
+    container.appendChild(iframe);
   })();
 </script>
 
-<!-- Alternative: Simple iframe embed -->
+<!-- Simple iframe embed (fallback) -->
 <iframe
-  src="${baseUrl}/embed/CHATBOT_ID_HERE"
-  style="position: fixed; bottom: 20px; right: 20px; width: 350px; height: 500px; border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 9999;"
+  src="${baseUrl}/chat-embed?chatbotId=REPLACE_WITH_YOUR_CHATBOT_ID&${chatbotParams.toString()}"
+  style="position: fixed; ${data.floatingPosition === 'bottom-left' ? 'bottom: 20px; left: 20px;' : 'bottom: 20px; right: 20px;'} width: 400px; height: 600px; border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 9999;"
   title="${data.chatbotName} - ${data.businessName}"
 ></iframe>`;
     return scriptCode;
@@ -250,24 +304,25 @@ export class ChatbotComponent {
               className="mx-auto transition-all duration-300"
               style={{ width: getPreviewWidth(), maxWidth: '100%' }}
             >
-              <ChatInterface
+              <EmbeddableChat
                 botName={data.chatbotName}
                 businessName={data.businessName}
                 avatar={data.avatar}
                 greeting={data.greeting}
-                enableTyping={data.enableTyping}
                 userBubbleColor={data.userBubbleColor}
                 aiBubbleColor={data.aiBubbleColor}
-                isDarkMode={data.isDarkMode}
-                chatbotConfig={{
-                  name: data.chatbotName,
-                  businessName: data.businessName,
-                  industry: data.industry || 'General',
-                  location: data.businessLocation || 'Not specified',
-                  contactPhone: data.supportPhone || 'Not provided',
-                  ragContent: data.manualContent || 'No specific knowledge base provided.'
-                }}
-                userApiKey={data.openRouterApiKey}
+                theme={data.isDarkMode ? 'dark' : 'light'}
+                chatbotId={data.id || 'preview'}
+                autoGreeting={data.autoGreeting}
+                floatingPosition={data.floatingPosition}
+                buttonShape={data.buttonShape}
+                buttonSize={data.buttonSize}
+                widgetBorder={data.widgetBorder}
+                widgetShadow={data.widgetShadow}
+                headerColor={data.headerColor}
+                headerTextColor={data.headerTextColor}
+                emailNotifications={data.emailNotifications}
+                notificationEmail={data.notificationEmail}
               />
             </div>
           </Card>

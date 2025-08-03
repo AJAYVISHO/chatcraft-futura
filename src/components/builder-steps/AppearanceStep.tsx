@@ -3,7 +3,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { Palette, Moon, Sun, MessageCircle, Upload, Sparkles, Clock } from 'lucide-react';
+import { Palette, Moon, Sun, MessageCircle, Upload, Sparkles, Clock, Mail, Settings, Layers, Move, Square, Circle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface AppearanceStepProps {
   data: {
@@ -14,6 +15,15 @@ interface AppearanceStepProps {
     userBubbleColor: string;
     aiBubbleColor: string;
     autoGreeting: boolean;
+    floatingPosition: 'bottom-right' | 'bottom-left';
+    buttonShape: 'circle' | 'square' | 'rounded';
+    buttonSize: 'small' | 'medium' | 'large';
+    widgetBorder: boolean;
+    widgetShadow: 'none' | 'small' | 'medium' | 'large';
+    headerColor: string;
+    headerTextColor: string;
+    emailNotifications: boolean;
+    notificationEmail: string;
   };
   updateData: (updates: any) => void;
 }
@@ -51,7 +61,7 @@ export const AppearanceStep: React.FC<AppearanceStepProps> = ({ data, updateData
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Left Column */}
         <div className="space-y-6">
           {/* Avatar Section */}
@@ -151,7 +161,7 @@ export const AppearanceStep: React.FC<AppearanceStepProps> = ({ data, updateData
           </div>
         </div>
 
-        {/* Right Column */}
+        {/* Middle Column */}
         <div className="space-y-6">
           {/* Greeting Message */}
           <div className="space-y-2">
@@ -236,6 +246,168 @@ export const AppearanceStep: React.FC<AppearanceStepProps> = ({ data, updateData
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Right Column - Advanced Customization */}
+        <div className="space-y-6">
+          {/* Widget Positioning */}
+          <div className="space-y-4">
+            <Label className="text-lg font-medium flex items-center gap-2">
+              <Move className="w-5 h-5 text-primary" />
+              Widget Position & Style
+            </Label>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Position</Label>
+                <Select value={data.floatingPosition} onValueChange={(value: 'bottom-right' | 'bottom-left') => updateData({ floatingPosition: value })}>
+                  <SelectTrigger className="neu-button border-0 bg-card/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bottom-right">Bottom Right</SelectItem>
+                    <SelectItem value="bottom-left">Bottom Left</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Button Shape</Label>
+                <Select value={data.buttonShape} onValueChange={(value: 'circle' | 'square' | 'rounded') => updateData({ buttonShape: value })}>
+                  <SelectTrigger className="neu-button border-0 bg-card/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="circle">Circle</SelectItem>
+                    <SelectItem value="rounded">Rounded</SelectItem>
+                    <SelectItem value="square">Square</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Button Size</Label>
+                <Select value={data.buttonSize} onValueChange={(value: 'small' | 'medium' | 'large') => updateData({ buttonSize: value })}>
+                  <SelectTrigger className="neu-button border-0 bg-card/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="small">Small</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="large">Large</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Shadow</Label>
+                <Select value={data.widgetShadow} onValueChange={(value: 'none' | 'small' | 'medium' | 'large') => updateData({ widgetShadow: value })}>
+                  <SelectTrigger className="neu-button border-0 bg-card/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="small">Small</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="large">Large</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-card/50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <Layers className="w-4 h-4 text-primary" />
+                <Label className="text-sm font-medium">Widget Border</Label>
+              </div>
+              <Switch
+                checked={data.widgetBorder}
+                onCheckedChange={(checked) => updateData({ widgetBorder: checked })}
+              />
+            </div>
+          </div>
+
+          {/* Header Customization */}
+          <div className="space-y-4">
+            <Label className="text-lg font-medium flex items-center gap-2">
+              <Settings className="w-5 h-5 text-primary" />
+              Header Colors
+            </Label>
+            
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Header Background</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={data.headerColor}
+                  onChange={(e) => updateData({ headerColor: e.target.value })}
+                  className="w-12 h-12 rounded-lg border-2 border-border cursor-pointer"
+                />
+                <Input
+                  value={data.headerColor}
+                  onChange={(e) => updateData({ headerColor: e.target.value })}
+                  className="flex-1 neu-button border-0 bg-card/50 backdrop-blur-sm focus:bg-card focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Header Text</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={data.headerTextColor}
+                  onChange={(e) => updateData({ headerTextColor: e.target.value })}
+                  className="w-12 h-12 rounded-lg border-2 border-border cursor-pointer"
+                />
+                <Input
+                  value={data.headerTextColor}
+                  onChange={(e) => updateData({ headerTextColor: e.target.value })}
+                  className="flex-1 neu-button border-0 bg-card/50 backdrop-blur-sm focus:bg-card focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Email Notifications */}
+          <div className="space-y-4">
+            <Label className="text-lg font-medium flex items-center gap-2">
+              <Mail className="w-5 h-5 text-primary" />
+              Email Notifications
+            </Label>
+            
+            <div className="flex items-center justify-between p-4 bg-card/50 rounded-xl">
+              <div>
+                <Label className="font-medium">Receive Conversations</Label>
+                <p className="text-sm text-muted-foreground">Get chat transcripts via email</p>
+              </div>
+              <Switch
+                checked={data.emailNotifications}
+                onCheckedChange={(checked) => updateData({ emailNotifications: checked })}
+              />
+            </div>
+
+            {data.emailNotifications && (
+              <div className="space-y-2">
+                <Label htmlFor="notificationEmail" className="text-sm font-medium">
+                  Notification Email
+                </Label>
+                <Input
+                  id="notificationEmail"
+                  type="email"
+                  placeholder="your-email@example.com"
+                  value={data.notificationEmail}
+                  onChange={(e) => updateData({ notificationEmail: e.target.value })}
+                  className="neu-button border-0 bg-card/50 backdrop-blur-sm focus:bg-card focus:ring-2 focus:ring-primary/20"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Conversations will be sent to this email address
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

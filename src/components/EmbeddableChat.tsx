@@ -20,8 +20,16 @@ interface EmbeddableChatProps {
   aiBubbleColor?: string;
   theme?: 'light' | 'dark';
   chatbotId: string;
-  autoGreeting?: boolean; // New prop for auto-greeting behavior
+  autoGreeting?: boolean;
   floatingPosition?: 'bottom-right' | 'bottom-left';
+  buttonShape?: 'circle' | 'square' | 'rounded';
+  buttonSize?: 'small' | 'medium' | 'large';
+  widgetBorder?: boolean;
+  widgetShadow?: 'none' | 'small' | 'medium' | 'large';
+  headerColor?: string;
+  headerTextColor?: string;
+  emailNotifications?: boolean;
+  notificationEmail?: string;
 }
 
 export const EmbeddableChat: React.FC<EmbeddableChatProps> = ({
@@ -34,7 +42,15 @@ export const EmbeddableChat: React.FC<EmbeddableChatProps> = ({
   theme = 'light',
   chatbotId,
   autoGreeting = false,
-  floatingPosition = 'bottom-right'
+  floatingPosition = 'bottom-right',
+  buttonShape = 'circle',
+  buttonSize = 'medium',
+  widgetBorder = true,
+  widgetShadow = 'medium',
+  headerColor = "#3b82f6",
+  headerTextColor = "#ffffff",
+  emailNotifications = false,
+  notificationEmail = ""
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -91,7 +107,7 @@ export const EmbeddableChat: React.FC<EmbeddableChatProps> = ({
     setIsTyping(true);
 
     try {
-      const response = await fetch('/functions/v1/chat-completion', {
+      const response = await fetch('https://oyamwgtjdvqgzljzxuua.supabase.co/functions/v1/chat-completion', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,7 +118,9 @@ export const EmbeddableChat: React.FC<EmbeddableChatProps> = ({
           conversationHistory: messages.map(msg => ({
             role: msg.sender === 'user' ? 'user' : 'assistant',
             content: msg.content
-          }))
+          })),
+          emailNotifications,
+          notificationEmail
         }),
       });
 
@@ -146,23 +164,48 @@ export const EmbeddableChat: React.FC<EmbeddableChatProps> = ({
     ? 'bg-gray-900 text-white' 
     : 'bg-white text-gray-900';
 
+  const buttonSizeClasses = {
+    small: 'w-12 h-12',
+    medium: 'w-14 h-14', 
+    large: 'w-16 h-16'
+  };
+
+  const buttonShapeClasses = {
+    circle: 'rounded-full',
+    square: 'rounded-lg',
+    rounded: 'rounded-2xl'
+  };
+
+  const shadowClasses = {
+    none: '',
+    small: 'shadow-sm',
+    medium: 'shadow-lg',
+    large: 'shadow-2xl'
+  };
+
   return (
     <div className={`fixed ${positionClass} z-50 font-sans`}>
       {/* Chat Widget */}
       {isOpen && (
-        <Card className={`mb-4 w-80 h-96 flex flex-col shadow-2xl border ${themeClasses}`}>
+        <Card className={`mb-4 w-80 h-96 flex flex-col ${shadowClasses[widgetShadow]} ${widgetBorder ? 'border' : 'border-0'} ${themeClasses}`}>
           {/* Header */}
-          <div className={`p-4 border-b flex items-center justify-between ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+          <div 
+            className={`p-4 border-b flex items-center justify-between ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}
+            style={{ 
+              backgroundColor: headerColor,
+              color: headerTextColor
+            }}
+          >
             <div className="flex items-center space-x-3">
               <Avatar className="w-8 h-8">
                 <AvatarImage src={avatar} alt={botName} />
-                <AvatarFallback className="bg-blue-500 text-white text-sm">
+                <AvatarFallback style={{ backgroundColor: userBubbleColor, color: headerTextColor }}>
                   {botName.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-medium text-sm">{botName}</p>
-                <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                <p className="font-medium text-sm" style={{ color: headerTextColor }}>{botName}</p>
+                <p className="text-xs opacity-80" style={{ color: headerTextColor }}>
                   {businessName}
                 </p>
               </div>
@@ -171,7 +214,8 @@ export const EmbeddableChat: React.FC<EmbeddableChatProps> = ({
               variant="ghost"
               size="sm"
               onClick={() => setIsOpen(false)}
-              className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="h-8 w-8 p-0 hover:bg-white/10"
+              style={{ color: headerTextColor }}
             >
               <X className="w-4 h-4" />
             </Button>
@@ -241,7 +285,7 @@ export const EmbeddableChat: React.FC<EmbeddableChatProps> = ({
       {/* Floating Button */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 rounded-full shadow-lg text-white hover:scale-105 transition-transform"
+        className={`${buttonSizeClasses[buttonSize]} ${buttonShapeClasses[buttonShape]} ${shadowClasses[widgetShadow]} text-white hover:scale-105 transition-transform`}
         style={{ backgroundColor: userBubbleColor }}
       >
         {isOpen ? (

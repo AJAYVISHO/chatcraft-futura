@@ -30,6 +30,17 @@ export interface ChatbotData {
   embedTheme: string;
   openRouterApiKey?: string;
   autoGreeting: boolean;
+  // New customization options
+  floatingPosition: 'bottom-right' | 'bottom-left';
+  buttonShape: 'circle' | 'square' | 'rounded';
+  buttonSize: 'small' | 'medium' | 'large';
+  widgetBorder: boolean;
+  widgetShadow: 'none' | 'small' | 'medium' | 'large';
+  headerColor: string;
+  headerTextColor: string;
+  // Email notification
+  emailNotifications: boolean;
+  notificationEmail: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -77,6 +88,17 @@ export const useChatbots = () => {
           embedTheme: config.embedTheme || 'light',
           openRouterApiKey: config.openRouterApiKey || '',
           autoGreeting: config.autoGreeting || false,
+          // New customization options
+          floatingPosition: config.floatingPosition || 'bottom-right',
+          buttonShape: config.buttonShape || 'circle',
+          buttonSize: config.buttonSize || 'medium',
+          widgetBorder: config.widgetBorder !== undefined ? config.widgetBorder : true,
+          widgetShadow: config.widgetShadow || 'medium',
+          headerColor: config.headerColor || '#3b82f6',
+          headerTextColor: config.headerTextColor || '#ffffff',
+          // Email notification
+          emailNotifications: config.emailNotifications || false,
+          notificationEmail: config.notificationEmail || '',
           created_at: chatbot.created_at,
           updated_at: chatbot.updated_at
         };
@@ -127,7 +149,16 @@ export const useChatbots = () => {
           embedHeight: chatbotData.embedHeight,
           embedTheme: chatbotData.embedTheme,
           openRouterApiKey: chatbotData.openRouterApiKey,
-          autoGreeting: chatbotData.autoGreeting
+          autoGreeting: chatbotData.autoGreeting,
+          floatingPosition: chatbotData.floatingPosition,
+          buttonShape: chatbotData.buttonShape,
+          buttonSize: chatbotData.buttonSize,
+          widgetBorder: chatbotData.widgetBorder,
+          widgetShadow: chatbotData.widgetShadow,
+          headerColor: chatbotData.headerColor,
+          headerTextColor: chatbotData.headerTextColor,
+          emailNotifications: chatbotData.emailNotifications,
+          notificationEmail: chatbotData.notificationEmail
         }
       };
 

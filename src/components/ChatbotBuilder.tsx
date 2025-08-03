@@ -30,7 +30,16 @@ const initialData: ChatbotData = {
   embedHeight: '600',
   embedTheme: 'light',
   openRouterApiKey: '',
-  autoGreeting: false
+  autoGreeting: false,
+  floatingPosition: 'bottom-right',
+  buttonShape: 'circle',
+  buttonSize: 'medium',
+  widgetBorder: true,
+  widgetShadow: 'medium',
+  headerColor: '#3b82f6',
+  headerTextColor: '#ffffff',
+  emailNotifications: false,
+  notificationEmail: ''
 };
 
 const steps = [
