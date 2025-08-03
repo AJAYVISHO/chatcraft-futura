@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = "https://oyamwgtjdvqgzljzxuua.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95YW13Z3RqZHZxZ3psanp4dXVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MjA2MjAsImV4cCI6MjA2ODk5NjYyMH0.cV9zP1ITlJRkFVywzMD3We08VUfclLMicwXsUk9HXCw";
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from '@/integrations/supabase/client';
 
 export interface ChatbotData {
   id?: string;
