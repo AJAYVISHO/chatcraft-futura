@@ -81,7 +81,7 @@ export const PreviewEmbedStep: React.FC<PreviewEmbedStepProps> = ({ data, update
     
     // Chatbot configuration
     var config = {
-      chatbotId: 'REPLACE_WITH_YOUR_CHATBOT_ID',
+      chatbotId: '${data.id || 'REPLACE_WITH_YOUR_CHATBOT_ID'}',
       botName: '${data.chatbotName}',
       businessName: '${data.businessName}',
       avatar: '${data.avatar}',
@@ -113,7 +113,7 @@ export const PreviewEmbedStep: React.FC<PreviewEmbedStepProps> = ({ data, update
 
 <!-- Simple iframe embed (fallback) -->
 <iframe
-  src="${baseUrl}/embed/REPLACE_WITH_YOUR_CHATBOT_ID"
+  src="${baseUrl}/embed/${data.id || 'REPLACE_WITH_YOUR_CHATBOT_ID'}"
   style="position: fixed; ${data.floatingPosition === 'bottom-left' ? 'bottom: 20px; left: 20px;' : 'bottom: 20px; right: 20px;'} width: 400px; height: 600px; border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 9999;"
   title="${data.chatbotName} - ${data.businessName}"
 ></iframe>`;
