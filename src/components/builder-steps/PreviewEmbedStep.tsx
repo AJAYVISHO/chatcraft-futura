@@ -103,8 +103,8 @@ export const PreviewEmbedStep: React.FC<PreviewEmbedStepProps> = ({ data, update
     
     // Create iframe
     var iframe = document.createElement('iframe');
-    iframe.src = '${baseUrl}/chat-embed?chatbotId=' + config.chatbotId + '&' + Object.keys(config).map(key => key + '=' + encodeURIComponent(config[key])).join('&');
-    iframe.style.cssText = 'width: 100vw; height: 100vh; border: none; background: transparent;';
+    iframe.src = '${baseUrl}/embed/' + config.chatbotId;
+    iframe.style.cssText = 'width: 400px; height: 600px; border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); background: transparent;';
     iframe.title = config.botName + ' - ' + config.businessName;
     
     container.appendChild(iframe);
@@ -113,7 +113,7 @@ export const PreviewEmbedStep: React.FC<PreviewEmbedStepProps> = ({ data, update
 
 <!-- Simple iframe embed (fallback) -->
 <iframe
-  src="${baseUrl}/chat-embed?chatbotId=REPLACE_WITH_YOUR_CHATBOT_ID&${chatbotParams.toString()}"
+  src="${baseUrl}/embed/REPLACE_WITH_YOUR_CHATBOT_ID"
   style="position: fixed; ${data.floatingPosition === 'bottom-left' ? 'bottom: 20px; left: 20px;' : 'bottom: 20px; right: 20px;'} width: 400px; height: 600px; border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 9999;"
   title="${data.chatbotName} - ${data.businessName}"
 ></iframe>`;
