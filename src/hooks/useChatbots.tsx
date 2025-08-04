@@ -52,7 +52,7 @@ export const useChatbots = () => {
     
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('chatbots')
         .select('*')
         .eq('user_id', user.id)
@@ -124,7 +124,31 @@ export const useChatbots = () => {
     }
 
     try {
-      const dbData = {
+      const config = JSON.stringify({
+        chatbotName: chatbotData.chatbotName,
+        avatar: chatbotData.avatar,
+        isDarkMode: chatbotData.isDarkMode,
+        greeting: chatbotData.greeting,
+        enableTyping: chatbotData.enableTyping,
+        userBubbleColor: chatbotData.userBubbleColor,
+        aiBubbleColor: chatbotData.aiBubbleColor,
+        embedWidth: chatbotData.embedWidth,
+        embedHeight: chatbotData.embedHeight,
+        embedTheme: chatbotData.embedTheme,
+        openRouterApiKey: chatbotData.openRouterApiKey,
+        autoGreeting: chatbotData.autoGreeting,
+        floatingPosition: chatbotData.floatingPosition,
+        buttonShape: chatbotData.buttonShape,
+        buttonSize: chatbotData.buttonSize,
+        widgetBorder: chatbotData.widgetBorder,
+        widgetShadow: chatbotData.widgetShadow,
+        headerColor: chatbotData.headerColor,
+        headerTextColor: chatbotData.headerTextColor,
+        emailNotifications: chatbotData.emailNotifications,
+        notificationEmail: chatbotData.notificationEmail
+      });
+
+      const dbData: any = {
         user_id: user.id,
         business_name: chatbotData.businessName,
         industry_type: chatbotData.industry,
@@ -133,34 +157,12 @@ export const useChatbots = () => {
         rag_content: chatbotData.manualContent,
         services_offered: '',
         pricing_details: '',
-        config: {
-          chatbotName: chatbotData.chatbotName,
-          avatar: chatbotData.avatar,
-          isDarkMode: chatbotData.isDarkMode,
-          greeting: chatbotData.greeting,
-          enableTyping: chatbotData.enableTyping,
-          userBubbleColor: chatbotData.userBubbleColor,
-          aiBubbleColor: chatbotData.aiBubbleColor,
-          embedWidth: chatbotData.embedWidth,
-          embedHeight: chatbotData.embedHeight,
-          embedTheme: chatbotData.embedTheme,
-          openRouterApiKey: chatbotData.openRouterApiKey,
-          autoGreeting: chatbotData.autoGreeting,
-          floatingPosition: chatbotData.floatingPosition,
-          buttonShape: chatbotData.buttonShape,
-          buttonSize: chatbotData.buttonSize,
-          widgetBorder: chatbotData.widgetBorder,
-          widgetShadow: chatbotData.widgetShadow,
-          headerColor: chatbotData.headerColor,
-          headerTextColor: chatbotData.headerTextColor,
-          emailNotifications: chatbotData.emailNotifications,
-          notificationEmail: chatbotData.notificationEmail
-        }
+        config: config
       };
 
       if (chatbotData.id) {
         // Update existing chatbot
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('chatbots')
           .update(dbData)
           .eq('id', chatbotData.id)
@@ -169,7 +171,7 @@ export const useChatbots = () => {
         if (error) throw error;
       } else {
         // Create new chatbot
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('chatbots')
           .insert(dbData);
         
@@ -198,7 +200,7 @@ export const useChatbots = () => {
     if (!user) return false;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('chatbots')
         .delete()
         .eq('id', chatbotId)
