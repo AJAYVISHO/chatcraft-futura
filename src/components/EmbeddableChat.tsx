@@ -111,6 +111,8 @@ export const EmbeddableChat: React.FC<EmbeddableChatProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95YW13Z3RqZHZxZ3psanp4dXVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MjA2MjAsImV4cCI6MjA2ODk5NjYyMH0.cV9zP1ITlJRkFVywzMD3We08VUfclLMicwXsUk9HXCw`,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95YW13Z3RqZHZxZ3psanp4dXVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MjA2MjAsImV4cCI6MjA2ODk5NjYyMH0.cV9zP1ITlJRkFVywzMD3We08VUfclLMicwXsUk9HXCw',
         },
         body: JSON.stringify({
           message: input,
