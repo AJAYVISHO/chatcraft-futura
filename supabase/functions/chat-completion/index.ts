@@ -37,18 +37,34 @@ serve(async (req) => {
       );
     }
 
-    // Get chatbot data from Supabase
-    const { data: chatbotData, error: fetchError } = await supabase
-      .from('chatbots')
-      .select('*')
-      .eq('id', chatbotId)
-      .single();
+    // Handle preview mode or get chatbot data from Supabase
+    let chatbotData;
+    
+    if (chatbotId === 'preview') {
+      // Use default values for preview mode
+      chatbotData = {
+        business_name: 'Preview Chatbot',
+        industry_type: 'Demo',
+        location: 'Preview Mode',
+        contact_phone: 'N/A',
+        rag_content: 'This is a preview of the chatbot. You can ask me anything!',
+        config: {}
+      };
+    } else {
+      const { data: fetchedData, error: fetchError } = await supabase
+        .from('chatbots')
+        .select('*')
+        .eq('id', chatbotId)
+        .single();
 
-    if (fetchError || !chatbotData) {
-      return new Response(
-        JSON.stringify({ error: 'Chatbot not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      if (fetchError || !fetchedData) {
+        return new Response(
+          JSON.stringify({ error: 'Chatbot not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      chatbotData = fetchedData;
     }
 
     const config = chatbotData.config || {};
