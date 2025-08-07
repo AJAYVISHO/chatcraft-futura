@@ -26,7 +26,16 @@ export interface ChatbotData {
   embedTheme: string;
   openRouterApiKey?: string;
   autoGreeting: boolean;
-  // New customization options
+  // AI Persona settings
+  agentName: string;
+  agentRole: string;
+  agentDescription: string;
+  chattiness: number;
+  defaultLanguage: string;
+  toneOfVoice: string;
+  responseStyle: string;
+  specialInstructions: string;
+  // Customization options
   floatingPosition: 'bottom-right' | 'bottom-left';
   buttonShape: 'circle' | 'square' | 'rounded';
   buttonSize: 'small' | 'medium' | 'large';
@@ -84,7 +93,16 @@ export const useChatbots = () => {
           embedTheme: config.embedTheme || 'light',
           openRouterApiKey: config.openRouterApiKey || '',
           autoGreeting: config.autoGreeting || false,
-          // New customization options
+          // AI Persona settings
+          agentName: config.agentName || 'Alex',
+          agentRole: config.agentRole || 'Customer Support Agent',
+          agentDescription: config.agentDescription || '',
+          chattiness: config.chattiness !== undefined ? config.chattiness : 1,
+          defaultLanguage: config.defaultLanguage || 'en',
+          toneOfVoice: config.toneOfVoice || 'friendly',
+          responseStyle: config.responseStyle || 'conversational',
+          specialInstructions: config.specialInstructions || '',
+          // Customization options
           floatingPosition: config.floatingPosition || 'bottom-right',
           buttonShape: config.buttonShape || 'circle',
           buttonSize: config.buttonSize || 'medium',
@@ -137,6 +155,16 @@ export const useChatbots = () => {
         embedTheme: chatbotData.embedTheme,
         openRouterApiKey: chatbotData.openRouterApiKey,
         autoGreeting: chatbotData.autoGreeting,
+        // AI Persona settings
+        agentName: chatbotData.agentName,
+        agentRole: chatbotData.agentRole,
+        agentDescription: chatbotData.agentDescription,
+        chattiness: chatbotData.chattiness,
+        defaultLanguage: chatbotData.defaultLanguage,
+        toneOfVoice: chatbotData.toneOfVoice,
+        responseStyle: chatbotData.responseStyle,
+        specialInstructions: chatbotData.specialInstructions,
+        // Customization options
         floatingPosition: chatbotData.floatingPosition,
         buttonShape: chatbotData.buttonShape,
         buttonSize: chatbotData.buttonSize,

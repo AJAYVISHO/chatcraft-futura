@@ -93,14 +93,51 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are ${chatbotData.business_name || 'a helpful assistant'}, an AI customer service representative. 
+            content: (() => {
+              // Parse configuration for AI persona settings
+              const configData = typeof chatbotData.config === 'string' ? JSON.parse(chatbotData.config) : (chatbotData.config || {});
+              const agentName = configData.agentName || 'Customer Service Agent';
+              const agentRole = configData.agentRole || 'Customer Support Agent';
+              const agentDescription = configData.agentDescription || '';
+              const chattiness = configData.chattiness !== undefined ? configData.chattiness : 1;
+              const toneOfVoice = configData.toneOfVoice || 'friendly';
+              const responseStyle = configData.responseStyle || 'conversational';
+              const specialInstructions = configData.specialInstructions || '';
+              const defaultLanguage = configData.defaultLanguage || 'en';
+
+              // Construct the system prompt with persona configuration
+              let systemPrompt = `You are ${agentName}, a ${agentRole} for ${chatbotData.business_name || 'the business'}.`;
+              
+              if (agentDescription) {
+                systemPrompt += ` ${agentDescription}`;
+              }
+
+              systemPrompt += `
+
+PERSONALITY & COMMUNICATION STYLE:
+- Tone: ${toneOfVoice} (be ${toneOfVoice} in all interactions)
+- Response Style: ${responseStyle}
+- Language: Respond primarily in ${defaultLanguage === 'en' ? 'English' : defaultLanguage}
+- Response Length: ${chattiness === 0 ? 'Keep responses to 1 sentence maximum' : 
+                        chattiness === 1 ? 'Keep responses brief (2-3 sentences)' :
+                        chattiness === 2 ? 'Provide standard responses (4-5 sentences)' :
+                        'Provide detailed, comprehensive responses (6+ sentences)'}`;
+
+              if (specialInstructions) {
+                systemPrompt += `
+
+SPECIAL INSTRUCTIONS:
+${specialInstructions}`;
+              }
+
+              systemPrompt += `
 
 CRITICAL INSTRUCTIONS:
 1. You MUST ONLY answer questions using the information provided in the business knowledge base below
 2. If the question cannot be answered using the knowledge base, respond with: "I don't have specific information about that. Please contact us directly at ${chatbotData.contact_phone || 'our support team'} for assistance."
 3. Do NOT make up information or provide general answers not found in the knowledge base
-4. Be helpful, professional, and concise
-5. Always stay in character as a representative of ${chatbotData.business_name || 'the business'}
+4. Follow your personality traits (${toneOfVoice}, ${responseStyle}) while staying professional
+5. Always stay in character as ${agentName} from ${chatbotData.business_name || 'the business'}
 
 BUSINESS INFORMATION:
 - Business: ${chatbotData.business_name || 'N/A'}
@@ -111,7 +148,10 @@ BUSINESS INFORMATION:
 KNOWLEDGE BASE:
 ${ragContent}
 
-Remember: ONLY use information from the knowledge base above. If you cannot find the answer there, ask them to contact support.`
+Remember: ONLY use information from the knowledge base above while maintaining your personality as ${agentName}.`;
+
+              return systemPrompt;
+            })()
           },
           ...conversationHistory,
           { role: 'user', content: message }

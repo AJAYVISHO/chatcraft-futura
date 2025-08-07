@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Bot, Sparkles } from 'lucide-react';
 import { GeneralInfoStep } from './builder-steps/GeneralInfoStep';
+import { PersonaStep } from './builder-steps/PersonaStep';
 import { IndustryContactStep } from './builder-steps/IndustryContactStep';
 import { KnowledgebaseStep } from './builder-steps/KnowledgebaseStep';
 import { AppearanceStep } from './builder-steps/AppearanceStep';
@@ -31,6 +32,16 @@ const initialData: ChatbotData = {
   embedTheme: 'light',
   openRouterApiKey: '',
   autoGreeting: false,
+  // AI Persona settings
+  agentName: 'Alex',
+  agentRole: 'Customer Support Agent',
+  agentDescription: '',
+  chattiness: 1,
+  defaultLanguage: 'en',
+  toneOfVoice: 'friendly',
+  responseStyle: 'conversational',
+  specialInstructions: '',
+  // Customization options
   floatingPosition: 'bottom-right',
   buttonShape: 'circle',
   buttonSize: 'medium',
@@ -44,10 +55,11 @@ const initialData: ChatbotData = {
 
 const steps = [
   { id: 1, title: 'General Info', description: 'Basic chatbot details' },
-  { id: 2, title: 'Industry & Contact', description: 'Business information' },
-  { id: 3, title: 'Knowledgebase', description: 'Upload your content' },
-  { id: 4, title: 'Appearance', description: 'Customize the look' },
-  { id: 5, title: 'Preview & Embed', description: 'Generate embed code' }
+  { id: 2, title: 'AI Persona', description: 'Configure agent personality' },
+  { id: 3, title: 'Industry & Contact', description: 'Business information' },
+  { id: 4, title: 'Knowledgebase', description: 'Upload your content' },
+  { id: 5, title: 'Appearance', description: 'Customize the look' },
+  { id: 6, title: 'Preview & Embed', description: 'Generate embed code' }
 ];
 
 interface ChatbotBuilderProps {
@@ -96,12 +108,14 @@ export const ChatbotBuilder: React.FC<ChatbotBuilderProps> = ({
       case 1:
         return <GeneralInfoStep data={chatbotData} updateData={updateData} />;
       case 2:
-        return <IndustryContactStep data={chatbotData} updateData={updateData} />;
+        return <PersonaStep data={chatbotData} updateData={updateData} />;
       case 3:
-        return <KnowledgebaseStep data={chatbotData} updateData={updateData} />;
+        return <IndustryContactStep data={chatbotData} updateData={updateData} />;
       case 4:
-        return <AppearanceStep data={chatbotData} updateData={updateData} />;
+        return <KnowledgebaseStep data={chatbotData} updateData={updateData} />;
       case 5:
+        return <AppearanceStep data={chatbotData} updateData={updateData} />;
+      case 6:
         return <PreviewEmbedStep data={chatbotData} updateData={updateData} />;
       default:
         return null;
@@ -113,10 +127,12 @@ export const ChatbotBuilder: React.FC<ChatbotBuilderProps> = ({
       case 1:
         return chatbotData.chatbotName.trim() && chatbotData.businessName.trim();
       case 2:
-        return chatbotData.industry && chatbotData.businessLocation.trim();
+        return chatbotData.agentName.trim() && chatbotData.agentRole.trim();
       case 3:
-        return chatbotData.uploadedFiles.length > 0 || chatbotData.manualContent.trim() || chatbotData.websiteLinks.length > 0;
+        return chatbotData.industry && chatbotData.businessLocation.trim();
       case 4:
+        return chatbotData.uploadedFiles.length > 0 || chatbotData.manualContent.trim() || chatbotData.websiteLinks.length > 0;
+      case 5:
         return chatbotData.greeting.trim();
       default:
         return true;
@@ -156,7 +172,7 @@ export const ChatbotBuilder: React.FC<ChatbotBuilderProps> = ({
             
             <Progress value={progress} className="h-2 mb-4" />
             
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
               {steps.map((step, index) => (
                 <div
                   key={step.id}
