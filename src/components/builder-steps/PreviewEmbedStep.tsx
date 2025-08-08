@@ -50,74 +50,21 @@ export const PreviewEmbedStep: React.FC<PreviewEmbedStepProps> = ({ data, update
 
   const generateEmbedCode = () => {
     const baseUrl = window.location.origin;
-    const chatbotParams = new URLSearchParams({
-      botName: data.chatbotName,
-      businessName: data.businessName,
-      avatar: data.avatar,
-      greeting: data.greeting,
-      userBubbleColor: data.userBubbleColor,
-      aiBubbleColor: data.aiBubbleColor,
+    const id = data.id || 'REPLACE_WITH_YOUR_CHATBOT_ID';
+    const params = new URLSearchParams({
+      id,
+      skipWelcome: data.autoGreeting ? '0' : '1',
       theme: data.isDarkMode ? 'dark' : 'light',
-      autoGreeting: data.autoGreeting.toString(),
-      floatingPosition: data.floatingPosition,
-      buttonShape: data.buttonShape,
-      buttonSize: data.buttonSize,
-      widgetBorder: data.widgetBorder.toString(),
-      widgetShadow: data.widgetShadow,
-      headerColor: data.headerColor,
-      headerTextColor: data.headerTextColor,
-      emailNotifications: data.emailNotifications.toString(),
-      notificationEmail: data.notificationEmail,
+      primaryColor: data.userBubbleColor || '#3b82f6',
+      botName: data.chatbotName || 'AI Assistant',
+      autoOpenDelay: '0'
     });
 
-    const scriptCode = `<!-- Advanced Floating Chatbot Widget -->
-<script>
-  (function() {
-    // Create chatbot container
-    var container = document.createElement('div');
-    container.id = 'chatbot-widget-container';
-    container.style.cssText = 'position: fixed; ${data.floatingPosition === 'bottom-left' ? 'bottom: 20px; left: 20px;' : 'bottom: 20px; right: 20px;'} z-index: 9999; font-family: system-ui, -apple-system, sans-serif;';
-    document.body.appendChild(container);
-    
-    // Chatbot configuration
-    var config = {
-      chatbotId: '${data.id || 'REPLACE_WITH_YOUR_CHATBOT_ID'}',
-      botName: '${data.chatbotName}',
-      businessName: '${data.businessName}',
-      avatar: '${data.avatar}',
-      greeting: '${data.greeting}',
-      userBubbleColor: '${data.userBubbleColor}',
-      aiBubbleColor: '${data.aiBubbleColor}',
-      theme: '${data.isDarkMode ? 'dark' : 'light'}',
-      autoGreeting: ${data.autoGreeting},
-      floatingPosition: '${data.floatingPosition}',
-      buttonShape: '${data.buttonShape}',
-      buttonSize: '${data.buttonSize}',
-      widgetBorder: ${data.widgetBorder},
-      widgetShadow: '${data.widgetShadow}',
-      headerColor: '${data.headerColor}',
-      headerTextColor: '${data.headerTextColor}',
-      emailNotifications: ${data.emailNotifications},
-      notificationEmail: '${data.notificationEmail}'
-    };
-    
-    // Create iframe
-    var iframe = document.createElement('iframe');
-    iframe.src = '${baseUrl}/embed/' + config.chatbotId;
-    iframe.style.cssText = 'width: 400px; height: 600px; border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); background: transparent;';
-    iframe.title = config.botName + ' - ' + config.businessName;
-    
-    container.appendChild(iframe);
-  })();
-</script>
+    const scriptTag = `<!-- One-line embeddable script -->\n<script src="${baseUrl}/agent/embedjs/embed.js?${params.toString()}"></script>`;
 
-<!-- Simple iframe embed (fallback) -->
-<iframe
-  src="${baseUrl}/embed/${data.id || 'REPLACE_WITH_YOUR_CHATBOT_ID'}"
-  style="position: fixed; ${data.floatingPosition === 'bottom-left' ? 'bottom: 20px; left: 20px;' : 'bottom: 20px; right: 20px;'} width: 400px; height: 600px; border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 9999;"
-  title="${data.chatbotName} - ${data.businessName}"
-></iframe>`;
-    return scriptCode;
+    const fallback = `<!-- Fallback iframe embed -->\n<iframe\n  src="${baseUrl}/embed/${id}?${params.toString()}"\n  style="position: fixed; ${data.floatingPosition === 'bottom-left' ? 'bottom: 20px; left: 20px;' : 'bottom: 20px; right: 20px;'} width: 400px; height: 600px; border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 9999;"\n  title="${data.chatbotName} - ${data.businessName}"\n></iframe>`;
+
+    return `${scriptTag}\n\n${fallback}`;
   };
 
   const generateReactCode = () => {

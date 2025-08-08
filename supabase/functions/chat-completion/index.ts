@@ -7,6 +7,7 @@ const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const resendApiKey = Deno.env.get('RESEND_API_KEY');
+const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
@@ -70,6 +71,41 @@ serve(async (req) => {
     const config = chatbotData.config || {};
     const ragContent = chatbotData.rag_content || 'No specific knowledge base provided.';
 
+    // Retrieval-Augmented: try to fetch matching context using embeddings if OPENAI_API_KEY is set
+    let retrievedContext = '';
+    try {
+      if (openaiApiKey) {
+        const embedResp = await fetch('https://api.openai.com/v1/embeddings', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            input: message,
+            model: 'text-embedding-3-small'
+          })
+        });
+        if (embedResp.ok) {
+          const embedJson = await embedResp.json();
+          const queryEmbedding = embedJson.data?.[0]?.embedding;
+          if (Array.isArray(queryEmbedding)) {
+            const { data: matches, error: matchError } = await supabase.rpc('match_documents', {
+              query_embedding: queryEmbedding,
+              chatbot_id_param: chatbotId,
+              match_threshold: 0.7,
+              match_count: 5
+            });
+            if (!matchError && matches?.length) {
+              retrievedContext = matches.map((m: any, i: number) => `[${i + 1}] ${m.content}`).join('\n\n');
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('RAG retrieval failed:', e);
+    }
+
     // Use OpenRouter API key from config or environment
     const apiKey = config.openRouterApiKey || openRouterApiKey;
     
@@ -131,24 +167,25 @@ ${specialInstructions}`;
               }
 
               systemPrompt += `
-
-CRITICAL INSTRUCTIONS:
-1. You MUST ONLY answer questions using the information provided in the business knowledge base below
-2. If the question cannot be answered using the knowledge base, respond with: "I don't have specific information about that. Please contact us directly at ${chatbotData.contact_phone || 'our support team'} for assistance."
-3. Do NOT make up information or provide general answers not found in the knowledge base
-4. Follow your personality traits (${toneOfVoice}, ${responseStyle}) while staying professional
-5. Always stay in character as ${agentName} from ${chatbotData.business_name || 'the business'}
-
-BUSINESS INFORMATION:
+            
+            CRITICAL INSTRUCTIONS:
+            1. You MUST ONLY answer questions using the information provided in the business knowledge base below
+            2. If the question cannot be answered using the knowledge base, respond with: "I don't have specific information about that. Please contact us directly at ${chatbotData.contact_phone || 'our support team'} for assistance."
+            3. Do NOT make up information or provide general answers not found in the knowledge base
+            4. Follow your personality traits (${toneOfVoice}, ${responseStyle}) while staying professional
+            5. Always stay in character as ${agentName} from ${chatbotData.business_name || 'the business'}
+            6. Include inline citations like [1], [2] corresponding to source snippets in the Retrieved Context when applicable
+            
+            BUSINESS INFORMATION:
 - Business: ${chatbotData.business_name || 'N/A'}
 - Industry: ${chatbotData.industry_type || 'N/A'}
 - Location: ${chatbotData.location || 'N/A'}
 - Contact: ${chatbotData.contact_phone || 'N/A'}
 
-KNOWLEDGE BASE:
-${ragContent}
-
-Remember: ONLY use information from the knowledge base above while maintaining your personality as ${agentName}.`;
+            RETRIEVED CONTEXT (most relevant first):
+            ${retrievedContext || ragContent}
+            
+            Remember: ONLY use information from the context above while maintaining your personality as ${agentName}.`;
 
               return systemPrompt;
             })()

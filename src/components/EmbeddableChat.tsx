@@ -30,6 +30,7 @@ interface EmbeddableChatProps {
   headerTextColor?: string;
   emailNotifications?: boolean;
   notificationEmail?: string;
+  autoOpenDelay?: number;
 }
 
 export const EmbeddableChat: React.FC<EmbeddableChatProps> = ({
@@ -50,7 +51,8 @@ export const EmbeddableChat: React.FC<EmbeddableChatProps> = ({
   headerColor = "#3b82f6",
   headerTextColor = "#ffffff",
   emailNotifications = false,
-  notificationEmail = ""
+  notificationEmail = "",
+  autoOpenDelay
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -59,29 +61,60 @@ export const EmbeddableChat: React.FC<EmbeddableChatProps> = ({
   const [hasAutoGreeted, setHasAutoGreeted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const storageKey = `chatbot_convo_${chatbotId}`;
+
+  // Load persisted messages
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw) as { content: string; sender: 'user' | 'ai'; timestamp: string }[];
+        setMessages(parsed.map(m => ({ ...m, timestamp: new Date(m.timestamp) })) as Message[]);
+      }
+    } catch (e) {
+      console.warn('Failed to load saved conversation', e);
+    }
+  }, [storageKey]);
+
+  // Persist messages
+  useEffect(() => {
+    try {
+      const serializable = messages.map(m => ({ ...m, timestamp: (m.timestamp as Date).toISOString() }));
+      localStorage.setItem(storageKey, JSON.stringify(serializable));
+    } catch (e) {
+      console.warn('Failed to persist conversation', e);
+    }
+  }, [messages, storageKey]);
+
+  // Auto-greeting logic
+
   // Auto-greeting logic
   useEffect(() => {
     if (autoGreeting && !hasAutoGreeted && isOpen) {
       const timer = setTimeout(() => {
-        setMessages([{
+        setMessages(prev => (prev.length ? prev : [{
           content: greeting,
           sender: 'ai',
           timestamp: new Date()
-        }]);
+        }]));
         setHasAutoGreeted(true);
-      }, 1000);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [autoGreeting, hasAutoGreeted, isOpen, greeting]);
 
+  // Auto open after delay
+  useEffect(() => {
+    if (typeof autoOpenDelay === 'number') {
+      const t = setTimeout(() => setIsOpen(true), Math.max(0, autoOpenDelay));
+      return () => clearTimeout(t);
+    }
+  }, [autoOpenDelay]);
+
   // Manual greeting when opened without auto-greeting
   useEffect(() => {
     if (isOpen && !autoGreeting && messages.length === 0) {
-      setMessages([{
-        content: greeting,
-        sender: 'ai',
-        timestamp: new Date()
-      }]);
+      setMessages([{ content: greeting, sender: 'ai', timestamp: new Date() }]);
     }
   }, [isOpen, autoGreeting, messages.length, greeting]);
 

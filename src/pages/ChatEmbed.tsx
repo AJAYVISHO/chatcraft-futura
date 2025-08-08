@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import { EmbeddableChat } from '@/components/EmbeddableChat';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -15,6 +15,7 @@ interface ChatbotConfig {
 
 const ChatEmbed: React.FC = () => {
   const { chatbotId } = useParams<{ chatbotId: string }>();
+  const location = useLocation();
   const [config, setConfig] = useState<ChatbotConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +33,7 @@ const ChatEmbed: React.FC = () => {
           .from('chatbots')
           .select('*')
           .eq('id', chatbotId)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching chatbot:', error);
@@ -74,19 +75,33 @@ const ChatEmbed: React.FC = () => {
   }
 
   const chatbotConfig = config.config || {};
+
+  // Parse URL params for runtime configuration
+  const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const skipWelcome = params.get('skipWelcome') === '1' || params.get('skipWelcome') === 'true';
+  const themeParam = params.get('theme');
+  const primaryColor = params.get('primaryColor');
+  const botNameOverride = params.get('botName');
+  const autoOpenDelay = params.get('autoOpenDelay') ? Number(params.get('autoOpenDelay')) : undefined;
+
+  const theme: 'light' | 'dark' = themeParam === 'dark' ? 'dark' : themeParam === 'light' ? 'light' : (chatbotConfig.isDarkMode ? 'dark' : 'light');
+  const userColor = primaryColor || chatbotConfig.userBubbleColor || '#3b82f6';
+  const aiColor = chatbotConfig.aiBubbleColor || '#f1f5f9';
+  const botName = botNameOverride || chatbotConfig.chatbotName || 'AI Assistant';
   
   return (
     <div className="min-h-screen bg-transparent">
       <EmbeddableChat
-        botName={chatbotConfig.chatbotName || 'AI Assistant'}
+        botName={botName}
         businessName={config.business_name}
         avatar={chatbotConfig.avatar || ''}
         greeting={chatbotConfig.greeting || 'Hello! How can I help you today?'}
-        userBubbleColor={chatbotConfig.userBubbleColor || '#3b82f6'}
-        aiBubbleColor={chatbotConfig.aiBubbleColor || '#f1f5f9'}
-        theme={chatbotConfig.isDarkMode ? 'dark' : 'light'}
+        userBubbleColor={userColor}
+        aiBubbleColor={aiColor}
+        theme={theme}
         chatbotId={config.id}
-        autoGreeting={chatbotConfig.autoGreeting || false}
+        autoGreeting={!skipWelcome}
+        autoOpenDelay={autoOpenDelay}
       />
     </div>
   );
