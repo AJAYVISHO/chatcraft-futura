@@ -125,7 +125,7 @@ serve(async (req) => {
         'X-Title': 'Chatbot Builder'
       },
       body: JSON.stringify({
-        model: 'microsoft/wizardlm-2-8x22b',
+        model: 'openai/gpt-oss-20b:free',
         messages: [
           {
             role: 'system',
